@@ -28,6 +28,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -56,4 +57,18 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.androidx.webkit)
+    implementation(libs.androidx.navigation.compose)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    // Retrofit for networking
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    // Moshi for JSON parsing
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.moshi:moshi-adapters:1.15.0")
+    //kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
+    // Coroutines for asynchronous calls
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("io.coil-kt:coil-compose:2.2.2")
 }
