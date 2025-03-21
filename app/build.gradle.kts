@@ -62,11 +62,11 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     // Retrofit for networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-
-    // Moshi for JSON parsing
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
-    implementation("com.squareup.moshi:moshi-adapters:1.15.0")
+    // Moshi for JSON parsing
+    // ... other dependencies ...
+    implementation("com.squareup.moshi:moshi:1.15.1") //moshi core dependency
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.1") // Kotlin codegen dependency
     //kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
     // Coroutines for asynchronous calls
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
