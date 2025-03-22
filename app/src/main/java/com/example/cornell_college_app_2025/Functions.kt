@@ -225,7 +225,7 @@ fun CornellCollegeMap() {
     LaunchedEffect(key1 = true) {
         val permissionStatus = ContextCompat.checkSelfPermission(
             context,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION
         )
         if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
             permissionGranted = true

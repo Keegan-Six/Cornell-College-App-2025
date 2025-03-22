@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
+import androidx.room.Room
 
 //-----------------------------SCREENS-------------------------------------------------------------
 // Opening Screen or Home Screen, displays buttons to navigate to other screens
