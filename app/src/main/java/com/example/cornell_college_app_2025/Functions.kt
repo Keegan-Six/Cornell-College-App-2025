@@ -87,21 +87,41 @@ fun WeatherDisplay(location: String = "Cedar Rapids, IA") {
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(text = "${weatherData!!.location.name}, ${weatherData!!.location.region}",
-                        fontSize = 16.sp,
+                        fontSize = 20.sp,
                         style = TextStyle(
+                            fontFamily = AppTheme.font,
                             fontWeight = FontWeight.Bold,
                             textDecoration = TextDecoration.Underline),
                         color = AppTheme.textColor)
                     Text(text = weatherData!!.current.condition.text,
+                        fontSize = 18.sp,
+                        style = TextStyle(
+                            fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal),
                         color = AppTheme.textColor)
                     Text(text = "Current Temperature: ${weatherData!!.current.tempF}°F",
-                        fontSize = 16.sp,
+                        fontSize = 18.sp,
+                        style = TextStyle(
+                            fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal),
                         color = AppTheme.textColor)
                     Text(text = "Wind: ${weatherData!!.current.windMPH} mph",
+                        fontSize = 18.sp,
+                        style = TextStyle(
+                            fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal),
                         color = AppTheme.textColor)
                     Text(text = "Max Temp Today: ${weatherData!!.forecast.forecastDay[0].day.maxTempF}°F",
+                        fontSize = 18.sp,
+                        style = TextStyle(
+                            fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal),
                         color = AppTheme.textColor)
                     Text(text = "Min Temp Today: ${weatherData!!.forecast.forecastDay[0].day.minTempF}°F",
+                        fontSize = 18.sp,
+                        style = TextStyle(
+                            fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal),
                         color = AppTheme.textColor)
 
                 }
@@ -150,11 +170,17 @@ fun Forecast(location: String = "52314") {
             for (day in forecastData!!.forecast.forecastDay) {
                 Text(text = day.date,
                     modifier = Modifier.padding(start = 8.dp),
+                    fontSize = 20.sp,
+                    style = TextStyle(fontFamily = AppTheme.font,
+                        fontWeight = FontWeight.Normal),
                     color = AppTheme.textColor)
                 PurpleLine()
                 Row {
                     Text(text = day.day.condition.text,
                         modifier = Modifier.padding(start = 8.dp),
+                        fontSize = 18.sp,
+                        style = TextStyle(fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal),
                         color = AppTheme.textColor)
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -168,9 +194,15 @@ fun Forecast(location: String = "52314") {
                 }
                 Text(text = "Max Temp: ${day.day.maxTempF}°F",
                     modifier = Modifier.padding(start = 8.dp),
+                    fontSize = 18.sp,
+                    style = TextStyle(fontFamily = AppTheme.font,
+                        fontWeight = FontWeight.Normal),
                     color = AppTheme.textColor)
                 Text(text = "Min Temp: ${day.day.minTempF}°F",
                     modifier = Modifier.padding(start = 8.dp),
+                    fontSize = 18.sp,
+                    style = TextStyle(fontFamily = AppTheme.font,
+                        fontWeight = FontWeight.Normal),
                     color = AppTheme.textColor)
             }
         }
@@ -179,7 +211,7 @@ fun Forecast(location: String = "52314") {
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 // WebViewScreen for displaying webpages
-fun WebViewScreen(url: String, modifier: Modifier = Modifier, scroll: Boolean) {
+fun WebViewScreen(url: String, modifier: Modifier = Modifier, scroll: Int) {
     AndroidView(
         factory = { context ->
             WebView(context).apply {
@@ -188,11 +220,17 @@ fun WebViewScreen(url: String, modifier: Modifier = Modifier, scroll: Boolean) {
                         super.onPageFinished(view, url)
 
                         // Scroll to the menu section using JavaScript
-                        if (scroll) {
+                        if (scroll == 1) {
                             view.evaluateJavascript(
                                 "javascript:window.scrollTo(0, document.documentElement.scrollHeight / 5);",
                                 null
                             )}
+                        else if (scroll == 2) {
+                            view.evaluateJavascript(
+                                "javascript:window.scrollTo(0, document.documentElement.scrollHeight / 2.5);",
+                                null
+                            )
+                        }
                         Log.i("WEBVIEW","Page Finished Loading")
                     }
                     override fun shouldOverrideUrlLoading(
@@ -254,9 +292,12 @@ fun Navigation() {
     Column(modifier = Modifier
         .fillMaxSize()
         .background(AppTheme.backgroundColor)){
-        NavHost(navController = navController, startDestination = "main_screen") {
+        NavHost(navController = navController, startDestination = "login_screen") {
+            composable("login_screen") {
+                LoginScreen(navController = navController)
+            }
             composable("main_screen") {
-                OpeningScreen(navController = navController)
+                MainScreen(navController = navController)
             }
             composable("weather2_screen") {
                 Weather2Screen(navController = navController)

@@ -2,4 +2,14 @@
 <resources>
 
     <style name="Theme.CornellCollegeApp2025" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Set the splash screen background, animated icon, and animation duration. -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+
+        <!-- Use windowSplashScreenAnimatedIcon to add a logo in your splash screen -->
+        <item name="windowSplashScreenAnimatedIcon">@color/cornell_purple</item>
+        <!-- Set the theme of the content that is shown after the splash screen. -->
+        <item name="postSplashScreenTheme">@style/Theme.CornellCollegeApp2025</item>
+
+    </style>
 </resources>

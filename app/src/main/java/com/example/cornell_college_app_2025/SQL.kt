@@ -1,38 +1,35 @@
 
 import androidx.room.*
 
-
-@Entity(tableName = "Schedule")
-data class Schedule(
+@Entity
+data class User(
     @PrimaryKey val uid: Int,
     @ColumnInfo(name = "first_name") val firstName: String?,
-    @ColumnInfo(name = "last_name") val lastName: String?,
-    @ColumnInfo(name = "block1") val block1: String?,
-    @ColumnInfo(name = "block2") val block2: String?,
-    @ColumnInfo(name = "block3") val block3: String?,
-    @ColumnInfo(name = "block4") val block4: String?,
-    @ColumnInfo(name = "block5") val block5: String?,
-    @ColumnInfo(name = "block6") val block6: String?,
-    @ColumnInfo(name = "block7") val block7: String?,
-    @ColumnInfo(name = "block8") val block8: String?,
+    @ColumnInfo(name = "last_name") val lastName: String?
 )
 
-
 @Dao
-interface ScheduleDao {
-    @Query("SELECT * FROM Schedule")
-    fun getAll(): List<Schedule>
+interface UserDao {
+    @Query("SELECT * FROM user")
+    fun getAll(): List<User>
+
+    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
+    fun loadAllByIds(userIds: IntArray): List<User>
+
+    @Query("SELECT * FROM user WHERE first_name LIKE :first AND " +
+            "last_name LIKE :last LIMIT 1")
+    fun findByName(first: String, last: String): User
 
     @Insert
-    fun insertAll(vararg schedules: Schedule)
+    fun insertAll(vararg users: User)
 
     @Delete
-    fun delete(schedule: Schedule)
+    fun delete(user: User)
 }
 
-@Database(entities = [Schedule::class], version = 1)
+@Database(entities = [User::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun scheduleDao(): ScheduleDao
+    abstract fun userDao(): UserDao
 }
 /*
 val db = Room.databaseBuilder(

@@ -19,6 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -28,7 +32,31 @@ import androidx.room.Room
 //-----------------------------SCREENS-------------------------------------------------------------
 // Opening Screen or Home Screen, displays buttons to navigate to other screens
 @Composable
-fun OpeningScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavHostController) {
+    Column {
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Login Screen",
+            modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
+            style = TextStyle(
+                fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal
+            ),
+            color = AppTheme.textColor
+        )
+        PurpleLine()
+        Button(
+            onClick = { navController.navigate("main_screen") },
+            modifier = Modifier.padding(8.dp).wrapContentSize(),
+            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+        ) {
+            Text(text = "Login")
+        }
+    }
+}
+@Composable
+fun MainScreen(navController: NavHostController) {
     val context = LocalContext.current
     Column {
         Spacer(modifier = Modifier.height(24.dp))
@@ -41,6 +69,8 @@ fun OpeningScreen(navController: NavHostController) {
         Text(text = "Current Weather",
             modifier = Modifier.padding(start = 8.dp),
             fontSize = 20.sp,
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         PurpleLine()
         WeatherDisplay("52314")
@@ -51,7 +81,10 @@ fun OpeningScreen(navController: NavHostController) {
             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)) {
             Text(text = "7 Day Weather Forecast")
         }
-        Text(text = "Navigation", modifier = Modifier.padding(start = 8.dp),
+        Text(text = "Navigation",
+            modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             fontSize = 20.sp,
             color = AppTheme.textColor)
         PurpleLine()
@@ -85,6 +118,8 @@ fun OpeningScreen(navController: NavHostController) {
         }
         Text(text = "Quick Links",
             modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             fontSize = 20.sp,
             color = AppTheme.textColor)
         PurpleLine()
@@ -117,13 +152,15 @@ fun OpeningScreen(navController: NavHostController) {
                 Text(text = "Library")
             }
         }
-        Button(onClick = { navController.navigate("options_menu") },
-            modifier = Modifier
-                .padding(8.dp)
-                .wrapContentSize(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)) {
-            Text(text = "Options")
-        }
+            Button(
+                onClick = { navController.navigate("options_menu") },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+            ) {
+                Text(text = "Options")
+            }
     }
 }
 // Weather Screen, displays more weather information
@@ -131,8 +168,11 @@ fun OpeningScreen(navController: NavHostController) {
 fun Weather2Screen(navController: NavHostController) {
     Column {
         Spacer(modifier = Modifier.height(48.dp))
-        Text(text = "7 Day Weather Forecast for Mount Vernon, Iowa",
+        Text(text = "7 Day Weather Forecast",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         PurpleLine()
         Forecast("52314")
@@ -147,13 +187,15 @@ fun MenuScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(48.dp))
         Text(text = "Menu Screen",
             modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         WebViewScreen(
             url = "https://cornell.cafebonappetit.com/",
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            scroll = true
+            scroll = 1
         )
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(30.dp)) {
             Home(navController)
@@ -177,6 +219,8 @@ fun MenuScreen2(navController: NavHostController) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = "Zamora's Market Menu",
             modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         PurpleLine()
         Image(
@@ -196,12 +240,16 @@ fun MenuScreen2(navController: NavHostController) {
 // TODO: Add schedule functionality
 @Composable
 fun ScheduleScreen(navController: NavHostController) {
+    val context = LocalContext.current
     Column {
         Spacer(modifier = Modifier.height(48.dp))
         Text(text = "Schedule Screen",
             modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         PurpleLine()
+        writeData()
         Home(navController)
     }
 }
@@ -212,8 +260,15 @@ fun EventScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(48.dp))
         Text(text = "Event Screen",
             modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         PurpleLine()
+        WebViewScreen(
+            url = "https://www.cornellcollege.edu/campus-calendar/",
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f), scroll = 2)
         Home(navController)
     }
 }
@@ -224,6 +279,8 @@ fun MapScreen(navController: NavHostController) {
         Text(
             text = "Map Screen",
             modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor
         )
         PurpleLine()
@@ -251,6 +308,8 @@ fun MapScreen2(navController: NavHostController) {
         Text(
             text = "Official Cornell Map",
             modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         PurpleLine()
         Image(
@@ -269,12 +328,18 @@ fun OptionsMenu(navController: NavHostController) {
         Text(
             text = "Options Menu",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor
         )
         PurpleLine()
         Text(
             text = "Change Background Color",
+            fontSize = 20.sp,
             modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor
         )
         PurpleLine()
@@ -317,6 +382,9 @@ fun OptionsMenu(navController: NavHostController) {
         Text(
             text = "Change Text Color",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor
         )
         PurpleLine()
@@ -363,6 +431,9 @@ fun OptionsMenu(navController: NavHostController) {
         Text(
             text = "Change UI element colors",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor
         )
         PurpleLine()
@@ -405,18 +476,46 @@ fun OptionsMenu(navController: NavHostController) {
         Text(
             text = "Miscellaneous",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
             color = AppTheme.textColor
         )
         PurpleLine()
+        Row {
+            Button(
+                onClick = {
+                    AppTheme.font = FontFamily.Default
+                },
+                modifier = Modifier.padding(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+            ) {
+                Text(text = "Restore Default Font")
+            }
+            Button(
+                onClick = {
+                    AppTheme.font = FontFamily(
+                        Font(R.font.brlnsr, FontWeight.Normal),
+                        Font(R.font.brlnsdb, FontWeight.Bold),
+                        Font(R.font.brlnsb, FontWeight.ExtraBold),
+                    )
+                },
+                modifier = Modifier.padding(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+            ) {
+                Text(text = "Berlin Sans FB Font")
+            }
+        }
         Button(onClick = {
             AppTheme.textColor = Color.Black
             AppTheme.backgroundColor = Color.White
             AppTheme.uiElementColor = Color(0xFF9C27B0)
         },
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier.padding(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)) {
-            Text(text = "Restore Defaults")
+            Text(text = "Restore Default Colors")
         }
+        PurpleLine()
         Home(navController)
     }
 }

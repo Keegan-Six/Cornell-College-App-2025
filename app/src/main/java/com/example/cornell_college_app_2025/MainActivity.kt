@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.cornell_college_app_2025.ui.theme.CornellCollegeApp2025Theme
 
@@ -16,6 +17,7 @@ import com.example.cornell_college_app_2025.ui.theme.CornellCollegeApp2025Theme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         enableEdgeToEdge()
         setContent {
             CornellCollegeApp2025Theme {
@@ -28,10 +30,10 @@ class MainActivity : ComponentActivity() {
 //-----------------------------PREVIEWS-----------------------------------------------------------
 @Preview(showBackground = true)
 @Composable
-fun OpeningScreenPreview() {
+fun MainScreenPreview() {
     CornellCollegeApp2025Theme {
         val navController = rememberNavController()
-        OpeningScreen(navController = navController)
+        MainScreen(navController = navController)
     }
 }
 /*

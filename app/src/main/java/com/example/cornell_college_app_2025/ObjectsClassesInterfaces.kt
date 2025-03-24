@@ -1,5 +1,10 @@
 package com.example.cornell_college_app_2025
 
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
+import com.example.cornell_college_app_2025.R
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,9 +79,16 @@ data class Hour(
 // App theme
 object AppTheme {
     var backgroundColor by mutableStateOf(Color.White)
-    var textColor by mutableStateOf(Color.Black)
-    var uiElementColor by mutableStateOf(Color(0xFF9C27B0))
+    var textColor by mutableStateOf(Color(0xFF2C2A29))
+    var uiElementColor by mutableStateOf(Color(0xFF523178))
+    var font by mutableStateOf(MyFontFamily)
 }
+//fonts
+val MyFontFamily = FontFamily(
+    Font(R.font.brlnsr, FontWeight.Normal),
+    Font(R.font.brlnsdb, FontWeight.Bold),
+    Font(R.font.brlnsb, FontWeight.ExtraBold),
+)
 // Weather API Interface
 interface WeatherApiService {
     @GET("forecast.json")
