@@ -42,9 +42,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.android.gms.maps.model.CameraPosition
@@ -55,6 +57,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 
 //---------------------------------------MAIN_FUNCTIONS--------------------------------------------
+
 // Displays basic weather info on main screen
 @Composable
 fun WeatherDisplay(location: String = "Cedar Rapids, IA") {
@@ -296,42 +299,76 @@ fun Navigation() {
             composable("login_screen") {
                 LoginScreen(navController = navController)
             }
-            composable("main_screen") {
-                MainScreen(navController = navController)
+            composable(
+                route = "main_screen/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                MainScreen(navController = navController, name ?: "")
             }
-            composable("weather2_screen") {
-                Weather2Screen(navController = navController)
+            composable(
+                route = "weather2_screen/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                Weather2Screen(navController = navController, name ?: "")
             }
-            composable("menu_screen") {
-                MenuScreen(navController = navController)
+            composable(
+                route = "menu_screen/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                MenuScreen(navController = navController, name ?:"")
             }
-            composable("menu_screen_2") {
-                MenuScreen2(navController = navController)
+            composable(
+                route = "menu_screen_2/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                MenuScreen2(navController = navController, name ?: "")
             }
-            composable("schedule_screen") {
-                ScheduleScreen(navController = navController)
+            composable(
+                route = "schedule_screen/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                ScheduleScreen(navController = navController, name ?: "")
             }
-            composable("event_screen") {
-                EventScreen(navController = navController)
+            composable(
+                route = "event_screen/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                EventScreen(navController = navController, name ?: "")
             }
-            composable("map_menu") {
-                MapScreen(navController = navController)
+            composable(
+                route = "map_menu/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                MapScreen(navController = navController, name ?: "")
             }
-            composable("map_menu_2") {
-                MapScreen2(navController = navController)
+            composable("map_menu_2/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                MapScreen2(navController = navController, name ?: "")
             }
-            composable("options_menu") {
-                OptionsMenu(navController = navController)
+            composable(route = "options_menu/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                OptionsMenu(navController = navController, name ?: "")
+                }
             }
         }
     }
-}
 //------------------------------HELPER_FUNCTIONS---------------------------------------------------
 // button to navigate to main screen
 @Composable
-fun Home(navController: NavHostController){
+fun Home(navController: NavHostController, name: String){
     Button(
-        onClick = { navController.navigate("main_screen") },
+        onClick = { navController.navigate("main_screen/$name") },
         modifier = Modifier
             .padding(8.dp)
             .wrapContentSize(),

@@ -28,45 +28,4 @@ class MainActivity : ComponentActivity() {
 }
 
 //-----------------------------PREVIEWS-----------------------------------------------------------
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    CornellCollegeApp2025Theme {
-        val navController = rememberNavController()
-        MainScreen(navController = navController)
-    }
-}
-/*
-@Preview(showBackground = true)
-@Composable
-fun MenuScreenPreview() {
-    CornellCollegeApp2025Theme {
-        val navController = rememberNavController()
-        MenuScreen(navController = navController)
-    }
-}
-@Preview(showBackground = true)
-@Composable
-fun MenuScreen2Preview() {
-    CornellCollegeApp2025Theme {
-        val navController = rememberNavController()
-        MenuScreen2(navController = navController)
-    }
-}
-@Preview(showBackground = true)
-@Composable
-fun ScheduleScreenPreview() {
-    CornellCollegeApp2025Theme {
-        val navController = rememberNavController()
-        ScheduleScreen(navController = navController)
-    }
-}
- */
-@Preview(showBackground = true)
-@Composable
-fun OptionsMenuPreview() {
-    CornellCollegeApp2025Theme {
-        val navController = rememberNavController()
-        OptionsMenu(navController = navController)
-    }
-}
+

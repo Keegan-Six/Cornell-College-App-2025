@@ -27,12 +27,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
-import androidx.room.Room
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 //-----------------------------SCREENS-------------------------------------------------------------
-// Opening Screen or Home Screen, displays buttons to navigate to other screens
+// Login Screen, displays login form
+
+
+@OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun LoginScreen(navController: NavHostController) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var loginMessage by remember { mutableStateOf("") }
+    writeData()
     Column {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
@@ -46,17 +65,78 @@ fun LoginScreen(navController: NavHostController) {
             color = AppTheme.textColor
         )
         PurpleLine()
-        Button(
-            onClick = { navController.navigate("main_screen") },
-            modifier = Modifier.padding(8.dp).wrapContentSize(),
-            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
-        ) {
-            Text(text = "Login")
+        TextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            modifier = Modifier.padding(8.dp)
+        )
+        TextField(
+            value = password,
+            onValueChange = { password = it },
+            visualTransformation = PasswordVisualTransformation(),
+            label = { Text("Password") },
+            modifier = Modifier.padding(8.dp)
+        )
+        Row() {
+            Button(
+                onClick = {
+                    val database = Firebase.database
+                    val studentsRef = database.getReference("students")
+                    var userFound = false;
+                    // Listen for changes in the "students" node
+                    studentsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            // Iterate through each student in the snapshot
+                            for (studentSnapshot in dataSnapshot.children) {
+                                // Get the username
+                                val storedName = studentSnapshot.child("name").getValue(String::class.java)
+                                val storedUsername = studentSnapshot.child("username").getValue(String::class.java)
+                                val storedPassword = studentSnapshot.child("password").getValue(String::class.java)
+                                // If the username is found, navigate and change the login message
+                                if (storedUsername == username && storedPassword == password) {
+                                    userFound = true
+                                    navController.navigate("main_screen/$storedName")
+                                    loginMessage = "Correct Username and Password"
+                                    break
+                                }
+                            }
+                            // If no username is found change the login message
+                            if (!userFound) {
+                                loginMessage = "Invalid Username or Password"
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            // Handle error
+                            loginMessage = "Database error: ${error.message}"
+                        }
+                    })
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+            ) {
+                Text(text = "Login")
+            }
+            Button(
+                onClick = { navController.navigate("main_screen/") },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+            ) {
+                Text(text = "Skip Login")
+            }
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = loginMessage, modifier = Modifier.padding(8.dp))
     }
 }
+// Opening Screen or Home Screen, displays buttons to navigate to other screens
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(navController: NavHostController, name: String) {
     val context = LocalContext.current
     Column {
         Spacer(modifier = Modifier.height(24.dp))
@@ -65,6 +145,12 @@ fun MainScreen(navController: NavHostController) {
             contentDescription = "Cornell College Logo",
             modifier = Modifier.fillMaxWidth().padding(8.dp)
         )
+        Text(text = "Hello $name!",
+            modifier = Modifier.padding(start = 8.dp).align(Alignment.CenterHorizontally),
+            fontSize = 28.sp,
+            style = TextStyle(fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal),
+            color = AppTheme.textColor)
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Current Weather",
             modifier = Modifier.padding(start = 8.dp),
@@ -74,7 +160,7 @@ fun MainScreen(navController: NavHostController) {
             color = AppTheme.textColor)
         PurpleLine()
         WeatherDisplay("52314")
-        Button(onClick = { navController.navigate("weather2_screen") },
+        Button(onClick = { navController.navigate("weather2_screen/$name") },
             modifier = Modifier
                 .padding(8.dp)
                 .wrapContentSize(),
@@ -88,28 +174,28 @@ fun MainScreen(navController: NavHostController) {
             fontSize = 20.sp,
             color = AppTheme.textColor)
         PurpleLine()
-        Button(onClick = { navController.navigate("menu_screen") },
+        Button(onClick = { navController.navigate("menu_screen/$name") },
             modifier = Modifier
                 .padding(8.dp)
                 .wrapContentSize(),
             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)) {
             Text(text = "Dining Menus")
         }
-        Button(onClick = { navController.navigate("schedule_screen") },
+        Button(onClick = { navController.navigate("schedule_screen/$name") },
             modifier = Modifier
                 .padding(8.dp)
                 .wrapContentSize(),
             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)) {
             Text(text = "Your Schedule")
         }
-        Button(onClick = { navController.navigate("event_screen") },
+        Button(onClick = { navController.navigate("event_screen/$name") },
             modifier = Modifier
                 .padding(8.dp)
                 .wrapContentSize(),
             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)) {
             Text(text = "Events")
         }
-        Button(onClick = { navController.navigate("map_menu") },
+        Button(onClick = { navController.navigate("map_menu/$name") },
             modifier = Modifier
                 .padding(8.dp)
                 .wrapContentSize(),
@@ -153,7 +239,7 @@ fun MainScreen(navController: NavHostController) {
             }
         }
             Button(
-                onClick = { navController.navigate("options_menu") },
+                onClick = { navController.navigate("options_menu/$name") },
                 modifier = Modifier
                     .padding(8.dp)
                     .wrapContentSize(),
@@ -165,7 +251,7 @@ fun MainScreen(navController: NavHostController) {
 }
 // Weather Screen, displays more weather information
 @Composable
-fun Weather2Screen(navController: NavHostController) {
+fun Weather2Screen(navController: NavHostController, name: String) {
     Column {
         Spacer(modifier = Modifier.height(48.dp))
         Text(text = "7 Day Weather Forecast",
@@ -176,13 +262,13 @@ fun Weather2Screen(navController: NavHostController) {
             color = AppTheme.textColor)
         PurpleLine()
         Forecast("52314")
-        Home(navController)
+        Home(navController, name)
     }
 }
 
 // Menu Screen, displays HillTop Dining Menu
 @Composable
-fun MenuScreen(navController: NavHostController) {
+fun MenuScreen(navController: NavHostController, name: String) {
     Column {
         Spacer(modifier = Modifier.height(48.dp))
         Text(text = "Menu Screen",
@@ -198,10 +284,10 @@ fun MenuScreen(navController: NavHostController) {
             scroll = 1
         )
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(30.dp)) {
-            Home(navController)
+            Home(navController, name)
             Spacer(modifier = Modifier.width(16.dp))
             Button(
-                onClick = { navController.navigate("menu_screen_2") },
+                onClick = { navController.navigate("menu_screen_2/$name") },
                 modifier = Modifier
                     .padding(8.dp)
                     .wrapContentSize(),
@@ -214,7 +300,7 @@ fun MenuScreen(navController: NavHostController) {
 }
 // Displays Zamora's Market Menu
 @Composable
-fun MenuScreen2(navController: NavHostController) {
+fun MenuScreen2(navController: NavHostController, name: String) {
     Column {
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = "Zamora's Market Menu",
@@ -233,29 +319,29 @@ fun MenuScreen2(navController: NavHostController) {
             contentDescription = "Zamora's Market Menu 2",
             modifier = Modifier.fillMaxWidth()
         )
-        Home(navController)
+        Home(navController, name)
     }
 }
 // Schedule Screen, displays schedule for student
 // TODO: Add schedule functionality
 @Composable
-fun ScheduleScreen(navController: NavHostController) {
+fun ScheduleScreen(navController: NavHostController, name: String) {
     val context = LocalContext.current
     Column {
         Spacer(modifier = Modifier.height(48.dp))
-        Text(text = "Schedule Screen",
+        Text(text = "Schedule Screen for $name",
             modifier = Modifier.padding(start = 8.dp),
             style = TextStyle(fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         PurpleLine()
-        writeData()
-        Home(navController)
+
+        Home(navController,name)
     }
 }
 // Event Screen, displays events for Cornell College
 @Composable
-fun EventScreen(navController: NavHostController) {
+fun EventScreen(navController: NavHostController, name: String) {
     Column {
         Spacer(modifier = Modifier.height(48.dp))
         Text(text = "Event Screen",
@@ -269,11 +355,11 @@ fun EventScreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f), scroll = 2)
-        Home(navController)
+        Home(navController,name)
     }
 }
 @Composable
-fun MapScreen(navController: NavHostController) {
+fun MapScreen(navController: NavHostController, name: String) {
     Column {
         Spacer(modifier = Modifier.height(48.dp))
         Text(
@@ -287,10 +373,10 @@ fun MapScreen(navController: NavHostController) {
         CornellCollegeMap()
         PurpleLine()
         Row {
-            Home(navController)
+            Home(navController, name)
             Spacer(modifier = Modifier.width(124.dp))
             Button(
-                onClick = { navController.navigate("map_menu_2") },
+                onClick = { navController.navigate("map_menu_2/$name") },
                 modifier = Modifier
                     .padding(8.dp)
                     .wrapContentSize(),
@@ -302,7 +388,7 @@ fun MapScreen(navController: NavHostController) {
     }
 }
 @Composable
-fun MapScreen2(navController: NavHostController) {
+fun MapScreen2(navController: NavHostController, name: String) {
     Column {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
@@ -316,13 +402,13 @@ fun MapScreen2(navController: NavHostController) {
             painter = painterResource(R.drawable.campusmap),
             contentDescription = "Official Cornell Map",
             modifier = Modifier.fillMaxWidth())
-        Home(navController)
+        Home(navController, name)
     }
 }
 
 // Displays Options menu
 @Composable
-fun OptionsMenu(navController: NavHostController) {
+fun OptionsMenu(navController: NavHostController, name: String) {
     Column {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
@@ -516,6 +602,13 @@ fun OptionsMenu(navController: NavHostController) {
             Text(text = "Restore Default Colors")
         }
         PurpleLine()
-        Home(navController)
+        Row {
+            Home(navController, name)
+            Button(onClick = { navController.navigate("login_screen") },
+                modifier = Modifier.padding(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)) {
+                Text(text = "Logout")
+            }
+        }
     }
 }
