@@ -3,14 +3,18 @@ package com.example.cornell_college_app_2025
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -27,13 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -51,87 +55,101 @@ fun LoginScreen(navController: NavHostController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loginMessage by remember { mutableStateOf("") }
-    writeData()
-    Column {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = "Login Screen",
-            modifier = Modifier.padding(start = 8.dp),
-            fontSize = 20.sp,
-            style = TextStyle(
-                fontFamily = AppTheme.font,
-                fontWeight = FontWeight.Normal
-            ),
-            color = AppTheme.textColor
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(R.drawable.cc_logo_icon_rgb),
+            contentDescription = "Cornell College Logo",
+            modifier = Modifier.fillMaxSize(),
         )
-        PurpleLine()
-        TextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
-            modifier = Modifier.padding(8.dp)
-        )
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            visualTransformation = PasswordVisualTransformation(),
-            label = { Text("Password") },
-            modifier = Modifier.padding(8.dp)
-        )
-        Row() {
-            Button(
-                onClick = {
-                    val database = Firebase.database
-                    val studentsRef = database.getReference("students")
-                    var userFound = false;
-                    // Listen for changes in the "students" node
-                    studentsRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            // Iterate through each student in the snapshot
-                            for (studentSnapshot in dataSnapshot.children) {
-                                // Get the username
-                                val storedName = studentSnapshot.child("name").getValue(String::class.java)
-                                val storedUsername = studentSnapshot.child("username").getValue(String::class.java)
-                                val storedPassword = studentSnapshot.child("password").getValue(String::class.java)
-                                // If the username is found, navigate and change the login message
-                                if (storedUsername == username && storedPassword == password) {
-                                    userFound = true
-                                    navController.navigate("main_screen/$storedName")
-                                    loginMessage = "Correct Username and Password"
-                                    break
+        Column {
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Login Screen",
+                modifier = Modifier.padding(start = 8.dp),
+                fontSize = 20.sp,
+                style = TextStyle(
+                    fontFamily = AppTheme.font,
+                    fontWeight = FontWeight.Normal
+                ),
+                color = AppTheme.textColor
+            )
+            PurpleLine()
+            Spacer(modifier = Modifier.height(128.dp))
+            Text(text = loginMessage, modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally),)
+        }
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Username") },
+                modifier = Modifier.padding(8.dp)
+            )
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                visualTransformation = PasswordVisualTransformation(),
+                label = { Text("Password") },
+                modifier = Modifier.padding(8.dp)
+            )
+            Row {
+                Button(
+                    onClick = {
+                        val database = Firebase.database
+                        val studentsRef = database.getReference("students")
+                        var userFound = false
+                        // Listen for changes in the "students" node
+                        studentsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                // Iterate through each student in the snapshot
+                                for (studentSnapshot in dataSnapshot.children) {
+                                    // Get the username
+                                    val storedName =
+                                        studentSnapshot.child("name").getValue(String::class.java)
+                                    val storedUsername = studentSnapshot.child("username")
+                                        .getValue(String::class.java)
+                                    val storedPassword = studentSnapshot.child("password")
+                                        .getValue(String::class.java)
+                                    // If the username is found, navigate and change the login message
+                                    if (storedUsername == username && storedPassword == password) {
+                                        userFound = true
+                                        navController.navigate("main_screen/$storedName")
+                                        loginMessage = "Correct Username and Password"
+                                        break
+                                    }
+                                }
+                                // If no username is found change the login message
+                                if (!userFound) {
+                                    loginMessage = "Invalid Username or Password"
                                 }
                             }
-                            // If no username is found change the login message
-                            if (!userFound) {
-                                loginMessage = "Invalid Username or Password"
-                            }
-                        }
 
-                        override fun onCancelled(error: DatabaseError) {
-                            // Handle error
-                            loginMessage = "Database error: ${error.message}"
-                        }
-                    })
-                },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize(),
-                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
-            ) {
-                Text(text = "Login")
-            }
-            Button(
-                onClick = { navController.navigate("main_screen/") },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize(),
-                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
-            ) {
-                Text(text = "Skip Login")
+                            override fun onCancelled(error: DatabaseError) {
+                                // Handle error
+                                loginMessage = "Database error: ${error.message}"
+                            }
+                        })
+                    },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .wrapContentSize(),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+                ) {
+                    Text(text = "Login")
+                }
+                Button(
+                    onClick = { navController.navigate("main_screen/") },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .wrapContentSize(),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+                ) {
+                    Text(text = "Skip Login")
+                }
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = loginMessage, modifier = Modifier.padding(8.dp))
     }
 }
 // Opening Screen or Home Screen, displays buttons to navigate to other screens
@@ -265,7 +283,6 @@ fun Weather2Screen(navController: NavHostController, name: String) {
         Home(navController, name)
     }
 }
-
 // Menu Screen, displays HillTop Dining Menu
 @Composable
 fun MenuScreen(navController: NavHostController, name: String) {
@@ -275,7 +292,9 @@ fun MenuScreen(navController: NavHostController, name: String) {
             modifier = Modifier.padding(start = 8.dp),
             style = TextStyle(fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal),
+            fontSize = 20.sp,
             color = AppTheme.textColor)
+        PurpleLine()
         WebViewScreen(
             url = "https://cornell.cafebonappetit.com/",
             modifier = Modifier
@@ -326,38 +345,122 @@ fun MenuScreen2(navController: NavHostController, name: String) {
 // TODO: Add schedule functionality
 @Composable
 fun ScheduleScreen(navController: NavHostController, name: String) {
-    val context = LocalContext.current
     Column {
         Spacer(modifier = Modifier.height(48.dp))
-        Text(text = "Schedule Screen for $name",
+        Text(
+            text = "Schedule Screen for $name",
             modifier = Modifier.padding(start = 8.dp),
-            style = TextStyle(fontFamily = AppTheme.font,
-                fontWeight = FontWeight.Normal),
-            color = AppTheme.textColor)
+            style = TextStyle(
+                fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal
+            ),
+            color = AppTheme.textColor
+        )
         PurpleLine()
+        var schedule by remember { mutableStateOf<Map<String, String>?>(null) }
+        val database = Firebase.database
+        val scheduleRef = database.getReference("students")
+        var isLoading by remember { mutableStateOf(true) }
+        var error by remember { mutableStateOf<String?>(null) }
 
-        Home(navController,name)
+        scheduleRef.child(name.lowercase()).child("schedule").get().addOnSuccessListener { dataSnapshot ->
+            val retrievedSchedule = dataSnapshot.value as? Map<String, String>
+            if (retrievedSchedule != null) {
+                schedule = retrievedSchedule
+                error = null // Clear any previous error
+            } else {
+                error = "No Schedule found."
+            }
+            isLoading = false
+        }.addOnFailureListener { exception ->
+            error = "Error fetching schedule: ${exception.message}"
+            isLoading = false
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (isLoading) {
+            Text("Loading Schedule...")
+        } else if (error != null) {
+            Text(error!!)
+        } else if (schedule == null) {
+            Text("No Schedule found.")
+        } else {
+            val sortedSchedule = schedule!!.toSortedMap()
+            LazyColumn {
+                items(sortedSchedule.entries.toList()) { entry ->
+                    Text(text = "${entry.key}: ${entry.value}",
+                        modifier = Modifier.padding(8.dp),
+                        style = TextStyle(
+                            fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        fontSize = 20.sp,
+                        color = AppTheme.textColor
+                        )
+                }
+            }
+        }
+            Spacer(modifier = Modifier.height(8.dp))
+            Home(navController, name)
+        }
     }
-}
 // Event Screen, displays events for Cornell College
 @Composable
 fun EventScreen(navController: NavHostController, name: String) {
     Column {
         Spacer(modifier = Modifier.height(48.dp))
-        Text(text = "Event Screen",
+        Text(
+            text = "Cornell College Events",
+            modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(
+                fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal
+            ),
+            color = AppTheme.textColor
+        )
+        PurpleLine()
+        WebViewScreen(
+            url = "https://www.cornellcollege.edu/campus-calendar/",
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f), scroll = 2
+        )
+        Row {
+            Home(navController, name)
+            Spacer(modifier = Modifier.width(24.dp))
+            Button(
+                onClick = { navController.navigate("event_screen_2/$name") },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+            ) {
+                Text(text = "Mount Vernon/Lisbon Events")
+            }
+        }
+    }
+}
+// Event Screen 2, displays events for Mount Vernon
+@Composable
+fun EventScreen2(navController: NavHostController, name: String) {
+    Column {
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(text = "Mount Vernon/Lisbon Events",
             modifier = Modifier.padding(start = 8.dp),
             style = TextStyle(fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
         PurpleLine()
         WebViewScreen(
-            url = "https://www.cornellcollege.edu/campus-calendar/",
+            url = "https://visitmvl.com/upcoming-events/",
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f), scroll = 2)
+                .weight(1f), scroll = 3)
         Home(navController,name)
     }
 }
+// Displays interactable Google Map of Cornell College
 @Composable
 fun MapScreen(navController: NavHostController, name: String) {
     Column {
@@ -387,6 +490,7 @@ fun MapScreen(navController: NavHostController, name: String) {
         }
     }
 }
+// displays PDF of official Cornell Map
 @Composable
 fun MapScreen2(navController: NavHostController, name: String) {
     Column {
@@ -405,7 +509,6 @@ fun MapScreen2(navController: NavHostController, name: String) {
         Home(navController, name)
     }
 }
-
 // Displays Options menu
 @Composable
 fun OptionsMenu(navController: NavHostController, name: String) {

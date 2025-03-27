@@ -228,13 +228,14 @@ fun WebViewScreen(url: String, modifier: Modifier = Modifier, scroll: Int) {
                                 "javascript:window.scrollTo(0, document.documentElement.scrollHeight / 5);",
                                 null
                             )}
+                        // scroll to the events section using JavaScript
                         else if (scroll == 2) {
                             view.evaluateJavascript(
                                 "javascript:window.scrollTo(0, document.documentElement.scrollHeight / 2.5);",
                                 null
                             )
                         }
-                        Log.i("WEBVIEW","Page Finished Loading")
+                        Log.i("WebView","Page Finished Loading")
                     }
                     override fun shouldOverrideUrlLoading(
                         view: WebView,
@@ -243,7 +244,6 @@ fun WebViewScreen(url: String, modifier: Modifier = Modifier, scroll: Int) {
                         return false
                     }
                 }
-                //webViewClient = WebViewClient() // Prevent opening in external browser
                 settings.javaScriptEnabled = true
                 loadUrl(url)
             }
@@ -340,6 +340,13 @@ fun Navigation() {
             {
                 backStackEntry -> val name = backStackEntry.arguments?.getString("name")
                 EventScreen(navController = navController, name ?: "")
+            }
+            composable(
+                route = "event_screen_2/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                EventScreen2(navController = navController, name ?: "")
             }
             composable(
                 route = "map_menu/{name}",
