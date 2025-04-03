@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
@@ -335,6 +336,13 @@ fun Navigation() {
                 ScheduleScreen(navController = navController, name ?: "")
             }
             composable(
+                route = "schedule_screen_2/{name}",
+                arguments = listOf(navArgument("name") { type = NavType.StringType }))
+            {
+                backStackEntry -> val name = backStackEntry.arguments?.getString("name")
+                ScheduleScreen2(navController = navController, name ?: "")
+            }
+            composable(
                 route = "event_screen/{name}",
                 arguments = listOf(navArgument("name") { type = NavType.StringType }))
             {
@@ -403,9 +411,9 @@ fun HelperButton(text: String, onClick: () -> Unit, colors: ButtonColors, modifi
         modifier = modifier
     ) {
         if (colors == ButtonDefaults.buttonColors(containerColor = Color.Black)) {
-            Text(text = text, color = Color.White)
+            Text(text, color = Color.White)
         } else {
-            Text(text = text, color = Color.Black)
+            Text(text, color = Color.Black)
         }
     }
 }

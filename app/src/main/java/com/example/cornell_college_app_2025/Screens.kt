@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -37,18 +35,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 
 //-----------------------------SCREENS-------------------------------------------------------------
 // Login Screen, displays login form
-
-
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -156,7 +154,9 @@ fun LoginScreen(navController: NavHostController) {
 @Composable
 fun MainScreen(navController: NavHostController, name: String) {
     val context = LocalContext.current
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         Spacer(modifier = Modifier.height(24.dp))
         Image(
             painter = painterResource(R.drawable.cc_logo_primary_rgb),
@@ -183,7 +183,7 @@ fun MainScreen(navController: NavHostController, name: String) {
                 .padding(8.dp)
                 .wrapContentSize(),
             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)) {
-            Text(text = "7 Day Weather Forecast")
+            Text(text = "3 Day Weather Forecast")
         }
         Text(text = "Navigation",
             modifier = Modifier.padding(start = 8.dp),
@@ -227,7 +227,9 @@ fun MainScreen(navController: NavHostController, name: String) {
             fontSize = 20.sp,
             color = AppTheme.textColor)
         PurpleLine()
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        ) {
             Button(
                 onClick = {
                     context.startActivity(Intent(Intent.ACTION_VIEW,
@@ -270,9 +272,11 @@ fun MainScreen(navController: NavHostController, name: String) {
 // Weather Screen, displays more weather information
 @Composable
 fun Weather2Screen(navController: NavHostController, name: String) {
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         Spacer(modifier = Modifier.height(48.dp))
-        Text(text = "7 Day Weather Forecast",
+        Text(text = "3 Day Weather Forecast",
             modifier = Modifier.padding(start = 8.dp),
             fontSize = 20.sp,
             style = TextStyle(fontFamily = AppTheme.font,
@@ -320,7 +324,9 @@ fun MenuScreen(navController: NavHostController, name: String) {
 // Displays Zamora's Market Menu
 @Composable
 fun MenuScreen2(navController: NavHostController, name: String) {
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = "Zamora's Market Menu",
             modifier = Modifier.padding(start = 8.dp),
@@ -345,11 +351,14 @@ fun MenuScreen2(navController: NavHostController, name: String) {
 // TODO: Add schedule functionality
 @Composable
 fun ScheduleScreen(navController: NavHostController, name: String) {
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         Spacer(modifier = Modifier.height(48.dp))
         Text(
             text = "Schedule Screen for $name",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
             style = TextStyle(
                 fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal
@@ -357,25 +366,26 @@ fun ScheduleScreen(navController: NavHostController, name: String) {
             color = AppTheme.textColor
         )
         PurpleLine()
-        var schedule by remember { mutableStateOf<Map<String, String>?>(null) }
+        var schedule by remember { mutableStateOf<Map<String, Map<String, String>>?>(null) }
         val database = Firebase.database
         val scheduleRef = database.getReference("students")
         var isLoading by remember { mutableStateOf(true) }
         var error by remember { mutableStateOf<String?>(null) }
 
-        scheduleRef.child(name.lowercase()).child("schedule").get().addOnSuccessListener { dataSnapshot ->
-            val retrievedSchedule = dataSnapshot.value as? Map<String, String>
-            if (retrievedSchedule != null) {
-                schedule = retrievedSchedule
-                error = null // Clear any previous error
-            } else {
-                error = "No Schedule found."
+        scheduleRef.child(name.lowercase()).child("schedule").get()
+            .addOnSuccessListener { dataSnapshot ->
+                val retrievedSchedule = dataSnapshot.value as? Map<String, Map<String, String>>
+                if (retrievedSchedule != null) {
+                    schedule = retrievedSchedule as Map<String, Map<String, String>>?
+                    error = null // Clear any previous error
+                } else {
+                    error = "No Schedule found."
+                }
+                isLoading = false
+            }.addOnFailureListener { exception ->
+                error = "Error fetching schedule: ${exception.message}"
+                isLoading = false
             }
-            isLoading = false
-        }.addOnFailureListener { exception ->
-            error = "Error fetching schedule: ${exception.message}"
-            isLoading = false
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -387,9 +397,12 @@ fun ScheduleScreen(navController: NavHostController, name: String) {
             Text("No Schedule found.")
         } else {
             val sortedSchedule = schedule!!.toSortedMap()
-            LazyColumn {
-                items(sortedSchedule.entries.toList()) { entry ->
-                    Text(text = "${entry.key}: ${entry.value}",
+            sortedSchedule.forEach { (block, course) ->
+                val courseID = course["course"]
+                val roomId = course["room"]
+                Column {
+                    Text(
+                        text = ("$block"),
                         modifier = Modifier.padding(8.dp),
                         style = TextStyle(
                             fontFamily = AppTheme.font,
@@ -397,14 +410,71 @@ fun ScheduleScreen(navController: NavHostController, name: String) {
                         ),
                         fontSize = 20.sp,
                         color = AppTheme.textColor
-                        )
+                    )
+                    PurpleLine()
+                    Text(
+                        text = ("CourseID: $courseID"),
+                        modifier = Modifier.padding(start = 8.dp),
+                        style = TextStyle(
+                            fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        fontSize = 16.sp,
+                        color = AppTheme.textColor
+                    )
+                    Text(
+                        text = ("Room: $roomId"),
+                        modifier = Modifier.padding(start = 8.dp),
+                        style = TextStyle(
+                            fontFamily = AppTheme.font,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        fontSize = 16.sp,
+                    )
                 }
             }
         }
+        Row {
             Spacer(modifier = Modifier.height(8.dp))
             Home(navController, name)
+            Spacer(modifier = Modifier.width(16.dp))
+            Button(
+                onClick = { navController.navigate("schedule_screen_2/$name") },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)
+            ) {
+                Text(text = "2024-2025 Academic Calender")
+            }
         }
     }
+}
+// Schedule Screen 2, displays academic calender
+@Composable
+fun ScheduleScreen2(navController: NavHostController, name: String) {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "2024-2025 Academic Calender",
+            modifier = Modifier.padding(start = 8.dp),
+            style = TextStyle(
+                fontFamily = AppTheme.font,
+                fontWeight = FontWeight.Normal
+            ),
+            color = AppTheme.textColor
+        )
+        PurpleLine()
+        Image(
+            painter = painterResource(R.drawable.academic_calender),
+            contentDescription = "2024-2025 Academic Calender",
+            modifier = Modifier.fillMaxWidth()
+        )
+        Home(navController, name)
+    }
+}
 // Event Screen, displays events for Cornell College
 @Composable
 fun EventScreen(navController: NavHostController, name: String) {
@@ -463,7 +533,9 @@ fun EventScreen2(navController: NavHostController, name: String) {
 // Displays interactable Google Map of Cornell College
 @Composable
 fun MapScreen(navController: NavHostController, name: String) {
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         Spacer(modifier = Modifier.height(48.dp))
         Text(
             text = "Map Screen",
@@ -493,7 +565,9 @@ fun MapScreen(navController: NavHostController, name: String) {
 // displays PDF of official Cornell Map
 @Composable
 fun MapScreen2(navController: NavHostController, name: String) {
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Official Cornell Map",
@@ -512,7 +586,9 @@ fun MapScreen2(navController: NavHostController, name: String) {
 // Displays Options menu
 @Composable
 fun OptionsMenu(navController: NavHostController, name: String) {
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Options Menu",
@@ -532,7 +608,9 @@ fun OptionsMenu(navController: NavHostController, name: String) {
             color = AppTheme.textColor
         )
         PurpleLine()
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+        ) {
             HelperButton(text = "Black",
                 onClick = { AppTheme.backgroundColor = Color.Black },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
@@ -550,7 +628,9 @@ fun OptionsMenu(navController: NavHostController, name: String) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C27B0)),
                 modifier = Modifier.padding(8.dp))
         }
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+        ) {
             HelperButton(text = "Red",
                 onClick = { AppTheme.backgroundColor = Color.Red },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
@@ -577,7 +657,9 @@ fun OptionsMenu(navController: NavHostController, name: String) {
             color = AppTheme.textColor
         )
         PurpleLine()
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+        ){
             HelperButton(text = "Black",
                 onClick = { AppTheme.textColor = Color.Black },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
@@ -596,7 +678,9 @@ fun OptionsMenu(navController: NavHostController, name: String) {
                 modifier = Modifier.padding(8.dp))
 
         }
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+        ) {
             HelperButton(text = "Red",
                 onClick = { AppTheme.textColor = Color.Red },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
@@ -626,7 +710,9 @@ fun OptionsMenu(navController: NavHostController, name: String) {
             color = AppTheme.textColor
         )
         PurpleLine()
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+        ) {
             HelperButton(text = "Black",
                 onClick = { AppTheme.uiElementColor = Color.Black },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
@@ -644,7 +730,9 @@ fun OptionsMenu(navController: NavHostController, name: String) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C27B0)),
                 modifier = Modifier.padding(8.dp))
         }
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+        ) {
             HelperButton(text = "Red",
                 onClick = { AppTheme.uiElementColor = Color.Red },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
@@ -671,7 +759,9 @@ fun OptionsMenu(navController: NavHostController, name: String) {
             color = AppTheme.textColor
         )
         PurpleLine()
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+        ) {
             Button(
                 onClick = {
                     AppTheme.font = FontFamily.Default
@@ -698,14 +788,16 @@ fun OptionsMenu(navController: NavHostController, name: String) {
         Button(onClick = {
             AppTheme.textColor = Color.Black
             AppTheme.backgroundColor = Color.White
-            AppTheme.uiElementColor = Color(0xFF9C27B0)
+            AppTheme.uiElementColor = Color(0xFF523178)
         },
             modifier = Modifier.padding(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = AppTheme.uiElementColor)) {
             Text(text = "Restore Default Colors")
         }
         PurpleLine()
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Home(navController, name)
             Button(onClick = { navController.navigate("login_screen") },
                 modifier = Modifier.padding(8.dp),
