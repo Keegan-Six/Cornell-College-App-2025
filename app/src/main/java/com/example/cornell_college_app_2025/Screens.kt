@@ -73,7 +73,7 @@ fun LoginScreen(navController: NavHostController) {
             )
             PurpleLine()
             Spacer(modifier = Modifier.height(128.dp))
-            Text(text = loginMessage, modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally),)
+            Text(text = loginMessage, modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally))
         }
         Column(
             modifier = Modifier.align(Alignment.Center),
@@ -330,6 +330,7 @@ fun MenuScreen2(navController: NavHostController, name: String) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = "Zamora's Market Menu",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
             style = TextStyle(fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal),
             color = AppTheme.textColor)
@@ -369,7 +370,6 @@ fun ScheduleScreen(navController: NavHostController, name: String) {
         var schedule by remember { mutableStateOf<Map<String, Map<String, String>>?>(null) }
         val database = Firebase.database
         val scheduleRef = database.getReference("students")
-        var isLoading by remember { mutableStateOf(true) }
         var error by remember { mutableStateOf<String?>(null) }
 
         scheduleRef.child(name.lowercase()).child("schedule").get()
@@ -377,24 +377,28 @@ fun ScheduleScreen(navController: NavHostController, name: String) {
                 val retrievedSchedule = dataSnapshot.value as? Map<String, Map<String, String>>
                 if (retrievedSchedule != null) {
                     schedule = retrievedSchedule as Map<String, Map<String, String>>?
-                    error = null // Clear any previous error
+                    error = null
                 } else {
                     error = "No Schedule found."
                 }
-                isLoading = false
             }.addOnFailureListener { exception ->
                 error = "Error fetching schedule: ${exception.message}"
-                isLoading = false
             }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (isLoading) {
-            Text("Loading Schedule...")
-        } else if (error != null) {
+        if (error != null) {
             Text(error!!)
         } else if (schedule == null) {
-            Text("No Schedule found.")
+            Text("No Schedule found.",
+                modifier = Modifier.padding(8.dp),
+                style = TextStyle(
+                    fontFamily = AppTheme.font,
+                    fontWeight = FontWeight.Normal
+                ),
+                fontSize = 20.sp,
+                color = AppTheme.textColor
+                )
         } else {
             val sortedSchedule = schedule!!.toSortedMap()
             sortedSchedule.forEach { (block, course) ->
@@ -460,6 +464,7 @@ fun ScheduleScreen2(navController: NavHostController, name: String) {
         Text(
             text = "2024-2025 Academic Calender",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
             style = TextStyle(
                 fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal
@@ -483,6 +488,7 @@ fun EventScreen(navController: NavHostController, name: String) {
         Text(
             text = "Cornell College Events",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
             style = TextStyle(
                 fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal
@@ -520,6 +526,7 @@ fun EventScreen2(navController: NavHostController, name: String) {
             modifier = Modifier.padding(start = 8.dp),
             style = TextStyle(fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal),
+            fontSize = 20.sp,
             color = AppTheme.textColor)
         PurpleLine()
         WebViewScreen(
@@ -527,6 +534,7 @@ fun EventScreen2(navController: NavHostController, name: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f), scroll = 3)
+        PurpleLine()
         Home(navController,name)
     }
 }
@@ -540,6 +548,7 @@ fun MapScreen(navController: NavHostController, name: String) {
         Text(
             text = "Map Screen",
             modifier = Modifier.padding(start = 8.dp),
+            fontSize = 20.sp,
             style = TextStyle(fontFamily = AppTheme.font,
                 fontWeight = FontWeight.Normal),
             color = AppTheme.textColor
@@ -599,6 +608,7 @@ fun OptionsMenu(navController: NavHostController, name: String) {
             color = AppTheme.textColor
         )
         PurpleLine()
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Change Background Color",
             fontSize = 20.sp,

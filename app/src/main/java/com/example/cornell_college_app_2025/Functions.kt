@@ -222,7 +222,6 @@ fun WebViewScreen(url: String, modifier: Modifier = Modifier, scroll: Int) {
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView, url: String) {
                         super.onPageFinished(view, url)
-
                         // Scroll to the menu section using JavaScript
                         if (scroll == 1) {
                             view.evaluateJavascript(
@@ -236,7 +235,6 @@ fun WebViewScreen(url: String, modifier: Modifier = Modifier, scroll: Int) {
                                 null
                             )
                         }
-                        Log.i("WebView","Page Finished Loading")
                     }
                     override fun shouldOverrideUrlLoading(
                         view: WebView,
