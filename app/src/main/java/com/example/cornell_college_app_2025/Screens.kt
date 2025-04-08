@@ -348,8 +348,7 @@ fun MenuScreen2(navController: NavHostController, name: String) {
         Home(navController, name)
     }
 }
-// Schedule Screen, displays schedule for student
-// TODO: Add schedule functionality
+// Schedule Screen, displays schedule for students
 @Composable
 fun ScheduleScreen(navController: NavHostController, name: String) {
     Column(
