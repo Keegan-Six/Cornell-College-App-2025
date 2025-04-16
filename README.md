@@ -1,2 +1,2 @@
 3/17/2025 Creation
-Check presentations folder for more info
+Check Senior Project Proposal.pdf in Presentations folder for more info
